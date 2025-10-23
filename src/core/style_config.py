@@ -1,40 +1,39 @@
-"""統一スタイル設定（バランス調整版）"""
+"""統一スタイル設定"""
 
 STYLE_CONFIG = {
     # 数式画像設定
     'math_dpi': 300,
-    'math_font_size': 250,  # 少し大きく（11pt）
+    'math_font_size': 250,
     'math_color': 'black',
     'math_background': 'transparent',
     
     # インライン数式の高さ設定（ポイント単位）
-    'inline_math_height': 8,  # 本文より少し大きく（12pt）
-    'display_math_width': 2.5,  # インチ単位
+    'inline_math_height': 8,
+    'display_math_width': 2.5,
     
     # テキストスタイル
     'title_font': 'MS Gothic',
     'title_size': 16,
     'title_bold': True,
     'body_font': 'MS Mincho',
-    'body_size': 11,
+    'body_size': 12,
     
     # レイアウト
     'problem_spacing': 1.5,
     'paragraph_spacing': 1.15,
-    'page_margin': 2.54,  # cm
+    'page_margin': 2.54,
     
     # 選択肢スタイル
     'choice_font': 'MS Mincho',
-    'choice_size': 11,
-    'choice_indent': 1.0,  # cm
+    'choice_size': 12,
+    'choice_indent': 1.0,
 }
 
-# テンプレート定義
 TEMPLATES = {
     'standard': {
         'name': '標準問題集',
         'header': None,
-        'footer': 'ページ {page}',
+        'footer': None,
         'title_style': '見出し 1',
         'numbering': True,
     },
