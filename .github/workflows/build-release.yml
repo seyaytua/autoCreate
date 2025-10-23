@@ -1,0 +1,161 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --name="MathConverter-Mac" \
+            --windowed \
+            --onefile \
+            --add-data "src:src" \
+            --hidden-import=PySide6.QtCore \
+            --hidden-import=PySide6.QtGui \
+            --hidden-import=PySide6.QtWidgets \
+            --hidden-import=pyperclip \
+            --hidden-import=matplotlib \
+            --hidden-import=matplotlib.backends.backend_agg \
+            --hidden-import=PIL \
+            --hidden-import=PIL._imaging \
+            --hidden-import=docx \
+            --hidden-import=bs4 \
+            --hidden-import=lxml \
+            --collect-all=pyperclip \
+            --collect-all=matplotlib \
+            --collect-all=PySide6 \
+            src/unified_gui.py
+      
+      - name: Create DMG
+        run: |
+          mkdir -p dist/MathConverter
+          if [ -d "dist/MathConverter-Mac.app" ]; then
+            cp -r dist/MathConverter-Mac.app dist/MathConverter/
+          else
+            cp dist/MathConverter-Mac dist/MathConverter/
+          fi
+          cp README.md dist/MathConverter/
+          hdiutil create -volname "MathConverter" -srcfolder dist/MathConverter -ov -format UDZO dist/MathConverter-Mac.dmg
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: mac-build
+          path: dist/MathConverter-Mac.dmg
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v4
+      
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --name="MathConverter-Win" `
+            --windowed `
+            --onefile `
+            --add-data "src;src" `
+            --hidden-import=PySide6.QtCore `
+            --hidden-import=PySide6.QtGui `
+            --hidden-import=PySide6.QtWidgets `
+            --hidden-import=pyperclip `
+            --hidden-import=matplotlib `
+            --hidden-import=matplotlib.backends.backend_agg `
+            --hidden-import=PIL `
+            --hidden-import=PIL._imaging `
+            --hidden-import=docx `
+            --hidden-import=bs4 `
+            --hidden-import=lxml `
+            --collect-all=pyperclip `
+            --collect-all=matplotlib `
+            --collect-all=PySide6 `
+            src/unified_gui.py
+      
+      - name: Create ZIP
+        run: |
+          Compress-Archive -Path dist/MathConverter-Win.exe,README.md -DestinationPath dist/MathConverter-Windows.zip
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: windows-build
+          path: dist/MathConverter-Windows.zip
+
+  release:
+    needs: [build-mac, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
+    steps:
+      - name: Download Mac build
+        uses: actions/download-artifact@v4
+        with:
+          name: mac-build
+      
+      - name: Download Windows build
+        uses: actions/download-artifact@v4
+        with:
+          name: windows-build
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            MathConverter-Mac.dmg
+            MathConverter-Windows.zip
+          body: |
+            ## ダウンロード
+            
+            - **Mac**: MathConverter-Mac.dmg
+            - **Windows**: MathConverter-Windows.zip
+            
+            ## インストール
+            
+            ### Mac
+            1. DMGファイルをダウンロード
+            2. ダブルクリックで開く
+            3. MathConverter.appをアプリケーションフォルダにドラッグ
+            
+            ### Windows
+            1. ZIPファイルをダウンロード
+            2. 解凍
+            3. MathConverter-Win.exeを実行
+            
+            ## 使い方
+            
+            1. GUIを起動
+            2. ファイルまたはクリップボードから読み込み
+            3. テンプレートを選択
+            4. Word文書に変換
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
