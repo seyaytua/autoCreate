@@ -1,0 +1,107 @@
+name: Build and Release
+
+on:
+  push:
+    tags:
+      - 'v*'
+  workflow_dispatch:
+
+jobs:
+  build-mac:
+    runs-on: macos-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --name="MathConverter-Mac" \
+            --windowed \
+            --onefile \
+            --add-data "src:src" \
+            --hidden-import=PySide6 \
+            --hidden-import=pyperclip \
+            src/unified_gui.py
+      
+      - name: Create DMG
+        run: |
+          mkdir -p dist/MathConverter
+          cp dist/MathConverter-Mac dist/MathConverter/
+          cp README.md dist/MathConverter/
+          hdiutil create -volname "MathConverter" -srcfolder dist/MathConverter -ov -format UDZO dist/MathConverter-Mac.dmg
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: mac-build
+          path: dist/MathConverter-Mac.dmg
+
+  build-windows:
+    runs-on: windows-latest
+    steps:
+      - uses: actions/checkout@v3
+      
+      - name: Set up Python
+        uses: actions/setup-python@v4
+        with:
+          python-version: '3.11'
+      
+      - name: Install dependencies
+        run: |
+          python -m pip install --upgrade pip
+          pip install -r requirements.txt
+          pip install pyinstaller
+      
+      - name: Build with PyInstaller
+        run: |
+          pyinstaller --name="MathConverter-Win" `
+            --windowed `
+            --onefile `
+            --add-data "src;src" `
+            --hidden-import=PySide6 `
+            --hidden-import=pyperclip `
+            src/unified_gui.py
+      
+      - name: Create installer
+        run: |
+          Compress-Archive -Path dist/MathConverter-Win.exe -DestinationPath dist/MathConverter-Windows.zip
+      
+      - name: Upload artifact
+        uses: actions/upload-artifact@v3
+        with:
+          name: windows-build
+          path: dist/MathConverter-Windows.zip
+
+  release:
+    needs: [build-mac, build-windows]
+    runs-on: ubuntu-latest
+    if: startsWith(github.ref, 'refs/tags/')
+    steps:
+      - name: Download Mac build
+        uses: actions/download-artifact@v3
+        with:
+          name: mac-build
+      
+      - name: Download Windows build
+        uses: actions/download-artifact@v3
+        with:
+          name: windows-build
+      
+      - name: Create Release
+        uses: softprops/action-gh-release@v1
+        with:
+          files: |
+            MathConverter-Mac.dmg
+            MathConverter-Windows.zip
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}

@@ -22,3 +22,9 @@ logs/
 
 # 出力ファイル
 data/output/*.docx
+
+PyInstaller
+build/ dist/ *.spec
+
+ビルド成果物
+*.dmg *.exe *.app
