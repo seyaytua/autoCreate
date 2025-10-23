@@ -1,35 +1,72 @@
 # GitHub Actionsワークフロー修正手順
 
 ## 問題
-GitHub Appの権限制限により、`.github/workflows/build-release.yml`の変更を自動的にプッシュできません。
+1. GitHub Appの権限制限により、`.github/workflows/build-release.yml`の変更を自動的にプッシュできません
+2. PowerShellの行継続文字（バッククォート `）が欠落していたため、Windows版ビルドが失敗していました
+
+## 🔴 緊急修正が必要
+
+### GitHubのWeb UIで直接編集してください：
+
+1. https://github.com/seyaytua/autoCreate/blob/main/.github/workflows/build-release.yml にアクセス
+2. 右上の鉛筆アイコン（Edit this file）をクリック
+3. 以下の変更を適用
 
 ## 手動で適用する変更
 
-`.github/workflows/build-release.yml`の以下の箇所に`--collect-all`フラグを追加してください：
+### Mac版ビルド（43-49行目）
 
-### Mac版ビルド（26行目付近）
+**変更前：**
 ```yaml
 --collect-all=pyperclip \
 --collect-all=matplotlib \
 --collect-all=PySide6 \
---collect-all=PIL \          # ← 追加
---collect-all=docx \         # ← 追加
---collect-all=bs4 \          # ← 追加
---collect-all=lxml \         # ← 追加
+--collect-all=PIL
+--collect-all=docx
+--collect-all=bs4
+--collect-all=lxml
 src/unified_gui.py
 ```
 
-### Windows版ビルド（98行目付近）
+**変更後：**
+```yaml
+--collect-all=pyperclip \
+--collect-all=matplotlib \
+--collect-all=PySide6 \
+--collect-all=PIL \
+--collect-all=docx \
+--collect-all=bs4 \
+--collect-all=lxml \
+src/unified_gui.py
+```
+
+### Windows版ビルド（102-109行目）
+
+**変更前：**
+```yaml
+--collect-all=pyperclip \
+--collect-all=matplotlib \
+--collect-all=PySide6 \
+--collect-all=PIL
+--collect-all=docx
+--collect-all=bs4
+--collect-all=lxml
+src/unified_gui.py
+```
+
+**変更後：**
 ```yaml
 --collect-all=pyperclip `
 --collect-all=matplotlib `
 --collect-all=PySide6 `
---collect-all=PIL `          # ← 追加
---collect-all=docx `         # ← 追加
---collect-all=bs4 `          # ← 追加
---collect-all=lxml `         # ← 追加
+--collect-all=PIL `
+--collect-all=docx `
+--collect-all=bs4 `
+--collect-all=lxml `
 src/unified_gui.py
 ```
+
+**⚠️ 重要：** Windows版は行継続にバッククォート（`）を使用します！
 
 ## 差分の全体
 
