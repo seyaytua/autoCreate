@@ -99,13 +99,13 @@ jobs:
             --hidden-import=docx `
             --hidden-import=bs4 `
             --hidden-import=lxml `
-            --collect-all=pyperclip \
-            --collect-all=matplotlib \
-            --collect-all=PySide6 \
-            --collect-all=PIL \
-            --collect-all=docx \
-            --collect-all=bs4 \
-            --collect-all=lxml \
+            --collect-all=pyperclip `
+            --collect-all=matplotlib `
+            --collect-all=PySide6 `
+            --collect-all=PIL `
+            --collect-all=docx `
+            --collect-all=bs4 `
+            --collect-all=lxml `
             src/unified_gui.py
       
       - name: Create ZIP
