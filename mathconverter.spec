@@ -1,32 +1,31 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import sys
-from pathlib import Path
 
 block_cipher = None
-
-# データファイルのリスト
-datas = [
-    ('src/core', 'src/core'),
-    ('src/batch', 'src/batch'),
-    ('src/validators', 'src/validators'),
-    ('src/prompts', 'src/prompts'),
-]
 
 a = Analysis(
     ['src/unified_gui.py'],
     pathex=[],
     binaries=[],
-    datas=datas,
+    datas=[
+        ('src/core', 'src/core'),
+        ('src/batch', 'src/batch'),
+        ('src/validators', 'src/validators'),
+        ('src/prompts', 'src/prompts'),
+    ],
     hiddenimports=[
         'PySide6.QtCore',
         'PySide6.QtGui',
         'PySide6.QtWidgets',
         'pyperclip',
+        'matplotlib',
         'matplotlib.backends.backend_agg',
+        'PIL',
         'PIL._imaging',
         'docx',
         'bs4',
+        'lxml',
         'lxml.etree',
     ],
     hookspath=[],
@@ -62,7 +61,6 @@ exe = EXE(
     entitlements_file=None,
 )
 
-# macOS用アプリバンドル
 if sys.platform == 'darwin':
     app = BUNDLE(
         exe,
@@ -73,6 +71,5 @@ if sys.platform == 'darwin':
             'CFBundleName': 'MathConverter',
             'CFBundleDisplayName': '数学問題変換システム',
             'CFBundleVersion': '1.0.0',
-            'CFBundleShortVersionString': '1.0.0',
         },
     )
