@@ -1,33 +1,43 @@
 # -*- mode: python ; coding: utf-8 -*-
 
 import sys
+from PyInstaller.utils.hooks import collect_all
 
 block_cipher = None
+
+# すべてのデータとバイナリを収集
+datas = [
+    ('src/core', 'src/core'),
+    ('src/batch', 'src/batch'),
+    ('src/validators', 'src/validators'),
+    ('src/prompts', 'src/prompts'),
+]
+binaries = []
+hiddenimports = [
+    'PySide6.QtCore',
+    'PySide6.QtGui',
+    'PySide6.QtWidgets',
+    'pyperclip',
+    'matplotlib',
+    'matplotlib.backends.backend_agg',
+    'PIL',
+    'PIL._imaging',
+    'docx',
+    'bs4',
+    'lxml',
+    'lxml.etree',
+]
+
+# pyperclipの完全な収集
+tmp_ret = collect_all('pyperclip')
+datas += tmp_ret[0]; binaries += tmp_ret[1]; hiddenimports += tmp_ret[2]
 
 a = Analysis(
     ['src/unified_gui.py'],
     pathex=[],
-    binaries=[],
-    datas=[
-        ('src/core', 'src/core'),
-        ('src/batch', 'src/batch'),
-        ('src/validators', 'src/validators'),
-        ('src/prompts', 'src/prompts'),
-    ],
-    hiddenimports=[
-        'PySide6.QtCore',
-        'PySide6.QtGui',
-        'PySide6.QtWidgets',
-        'pyperclip',
-        'matplotlib',
-        'matplotlib.backends.backend_agg',
-        'PIL',
-        'PIL._imaging',
-        'docx',
-        'bs4',
-        'lxml',
-        'lxml.etree',
-    ],
+    binaries=binaries,
+    datas=datas,
+    hiddenimports=hiddenimports,
     hookspath=[],
     hooksconfig={},
     runtime_hooks=[],
