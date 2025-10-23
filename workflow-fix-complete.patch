@@ -1,0 +1,40 @@
+diff --git a/.github/workflows/build-release.yml b/.github/workflows/build-release.yml
+index 5a76083..23f1cec 100644
+--- a/.github/workflows/build-release.yml
++++ b/.github/workflows/build-release.yml
+@@ -43,10 +43,10 @@ jobs:
+             --collect-all=pyperclip \
+             --collect-all=matplotlib \
+             --collect-all=PySide6 \
+-            --collect-all=PIL
+-            --collect-all=docx
+-            --collect-all=bs4
+-            --collect-all=lxml
++            --collect-all=PIL \
++            --collect-all=docx \
++            --collect-all=bs4 \
++            --collect-all=lxml \
+             src/unified_gui.py
+       
+       - name: Create DMG
+@@ -99,13 +99,13 @@ jobs:
+             --hidden-import=docx `
+             --hidden-import=bs4 `
+             --hidden-import=lxml `
+-            --collect-all=pyperclip \
+-            --collect-all=matplotlib \
+-            --collect-all=PySide6 \
+-            --collect-all=PIL
+-            --collect-all=docx
+-            --collect-all=bs4
+-            --collect-all=lxml
++            --collect-all=pyperclip `
++            --collect-all=matplotlib `
++            --collect-all=PySide6 `
++            --collect-all=PIL `
++            --collect-all=docx `
++            --collect-all=bs4 `
++            --collect-all=lxml `
+             src/unified_gui.py
+       
+       - name: Create ZIP
