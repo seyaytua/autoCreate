@@ -10,10 +10,10 @@ jobs:
   build-mac:
     runs-on: macos-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
@@ -36,12 +36,12 @@ jobs:
       - name: Create DMG
         run: |
           mkdir -p dist/MathConverter
-          cp dist/MathConverter-Mac dist/MathConverter/
+          cp dist/MathConverter-Mac.app dist/MathConverter/ || cp dist/MathConverter-Mac dist/MathConverter/
           cp README.md dist/MathConverter/
           hdiutil create -volname "MathConverter" -srcfolder dist/MathConverter -ov -format UDZO dist/MathConverter-Mac.dmg
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: mac-build
           path: dist/MathConverter-Mac.dmg
@@ -49,10 +49,10 @@ jobs:
   build-windows:
     runs-on: windows-latest
     steps:
-      - uses: actions/checkout@v3
+      - uses: actions/checkout@v4
       
       - name: Set up Python
-        uses: actions/setup-python@v4
+        uses: actions/setup-python@v5
         with:
           python-version: '3.11'
       
@@ -72,12 +72,12 @@ jobs:
             --hidden-import=pyperclip `
             src/unified_gui.py
       
-      - name: Create installer
+      - name: Create ZIP
         run: |
-          Compress-Archive -Path dist/MathConverter-Win.exe -DestinationPath dist/MathConverter-Windows.zip
+          Compress-Archive -Path dist/MathConverter-Win.exe,README.md -DestinationPath dist/MathConverter-Windows.zip
       
       - name: Upload artifact
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: windows-build
           path: dist/MathConverter-Windows.zip
@@ -86,14 +86,16 @@ jobs:
     needs: [build-mac, build-windows]
     runs-on: ubuntu-latest
     if: startsWith(github.ref, 'refs/tags/')
+    permissions:
+      contents: write
     steps:
       - name: Download Mac build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: mac-build
       
       - name: Download Windows build
-        uses: actions/download-artifact@v3
+        uses: actions/download-artifact@v4
         with:
           name: windows-build
       
@@ -103,5 +105,16 @@ jobs:
           files: |
             MathConverter-Mac.dmg
             MathConverter-Windows.zip
+          body: |
+            ## ダウンロード
+            
+            - **Mac**: MathConverter-Mac.dmg
+            - **Windows**: MathConverter-Windows.zip
+            
+            ## 変更内容
+            
+            - テンプレート機能
+            - クリップボード対応
+            - 統合GUI
         env:
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
