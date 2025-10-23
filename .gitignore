@@ -28,3 +28,5 @@ build/ dist/ *.spec
 
 ビルド成果物
 *.dmg *.exe *.app
+build/
+dist/
